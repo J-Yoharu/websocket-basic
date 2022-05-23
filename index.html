@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .chat-container {
+            background-color: rgba(87, 86, 86, 0.315);
+            padding:10px;
+            width:100%;
+            min-height:50vh;
+            max-height:50vh;
+            overflow-y: auto;
+        }
+        .app {
+            display:flex;
+            justify-content: center;
+            align-items:center;
+            min-height: 100vh;
+            min-width:100vw;
+        }
+    </style>
+    
+    <script>
+        function createNewMessage(msg) {
+            let element = document.createElement('div');
+            element.textContent = msg;
+            return element;
+        }
+    </script>
+  
+</head>
+<body >
+    <div class="app">
+        <div style="width:60%">
+            <div>Projeto básico de WB /Chat/ </div>
+            <div>Conectado à: <span id="socket-url"></span></div>
+            <div class="chat-container"></div>
+        </div>
+    </div>
+
+</body>
+<script>
+    const socket = new WebSocket('ws://localhost:3000');
+    const chatContainer = document.querySelector('.chat-container');
+
+    socket.onopen = (event) => {
+        document.querySelector('#socket-url').textContent = event.currentTarget.url;
+    }
+
+    socket.onerror = (err) => {
+        console.error(err);
+    }
+
+    socket.onclose = () => {
+        document.querySelector('#socket-url').textContent = 'Desconectado';
+    }
+    
+    socket.onmessage = e => {
+        chatContainer.appendChild(createNewMessage(e.data));
+    }
+</script>
+</html>
