@@ -1,24 +1,18 @@
 const WebSocket = require('ws');
 const http = require('http');
+const PORT = 3000;
+const HOST = 'localhost';
 
-const requestListener = function (req, res) {
- res.end('ok');
-};
+const server = http.createServer((req, res) => (res.end('ws server is running')));
 
-const server = http.createServer(requestListener);
-
-server.listen(3000, 'localhost', () => {
- console.log('Servidor rodando na porta 3000');
+server.listen(PORT, HOST, () => {
+ console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-const socket = new WebSocket.Server({
- server
-});
+const socket = new WebSocket.Server({ server });
 const clients = [];
 
-socket.on('connection', (ws) => {
-  clients.push(ws);
-})
+socket.on('connection', client => (clients.push(client)) )
 
 setInterval(() => {
  const msg = `Nova mensagem ${Math.random() * 100}`;
