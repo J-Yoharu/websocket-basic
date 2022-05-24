@@ -44,14 +44,36 @@
     const el = document.querySelector('.cobra');
     let x = 0;
     let y = 200;
+
     setInterval(() => {
         const { x:elementX, y:elementY, width} = el.getBoundingClientRect();
         //direita
-        x+= width;
-        if((elementX + width) > document.body.clientWidth) {
-            x = 0;
-        }
+        x += width;
+        if((elementX + width) > document.body.clientWidth) x = 0;
+
         changePosition(el, x, y);
     },300)
+</script>
+<script>
+    const socket = new WebSocket('ws://localhost:3000/teste')
+
+    socket.onopen = (open) => {
+        console.log({open})
+
+         socket.send(JSON.stringify({
+            command: 'teste',
+            identifier: {
+                channel: 'teste'
+            }
+        }))
+    }
+
+    socket.onmessage = (message) => {
+        console.log({ message })
+    }
+
+   
+
+
 </script>
 </html>
