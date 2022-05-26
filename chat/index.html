@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"
+        integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    </script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .chat-container {
+            background-color: rgba(87, 86, 86, 0.315);
+            padding:10px;
+            width:100%;
+            min-height:50vh;
+            max-height:50vh;
+            overflow-y: auto;
+        }
+        .app {
+            display:flex;
+            justify-content: center;
+            align-items:center;
+            min-height: 80vh;
+            min-width:99;
+        }
+    </style>
+
+    <script>
+        if (!localStorage.user) {
+            let name = prompt('Digite seu nome de usuário')
+            localStorage.user = JSON.stringify({ name })
+        }
+    </script>
+</head>
+<body >
+    <div class="app">
+        <div style="width:60%">
+            <div>Projeto básico de WB /Chat/ </div>
+            <div>Conectado à: <span id="socket-url"></span></div>
+            <br>
+            <div>Usuário: <span id="username"></span> </div>
+            <div style="display: flex">
+                <input type="text" id="input-message" style="width: 100%">
+                <button onClick="sendMessage()" style="margin-left: 5px;">
+                    Enviar
+                </button>
+            </div>
+            <div class="chat-container"></div>
+
+            <div class="alert hidden">
+            </div>
+        </div>
+    </div>
+</body>
+
+    <script  type="module" src="./index.js">
+    </script>
+</html>

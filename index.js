@@ -1,19 +1,36 @@
-const WebSocket = require("ws");
-const port = 3000;
-const host = "localhost";
+const { Server } = require('socket.io')
+const { createServer } = require('http')
 
-const socket = new WebSocket.Server({ port, host });
-const clients = [];
+const host = 'localhost'
+const port = 3000
 
-socket.on("connection", (client) => {
-  console.log("Foi conectado novo cliente");
-  clients.push(client);
-});
+const httpServer = createServer({ host }, (req, res) => {
+  res.end(`Server is Running on http://${host}:${port}`)
+})
 
-setInterval(() => {
-  const msg = `Nova mensagem ${Math.random() * 100}`;
+let users = []
 
-  clients.forEach((client) => {
-    client.send(msg);
-  });
-}, 1000);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+  },
+})
+
+io.on('connection', socket => {
+  console.log('New client connected!')
+
+  socket.on('write-message', data => {
+    console.log(`Received new Server: ${data}`)
+
+    io.emit('read-message', data)
+    // socket.broadcast.emit('read-message', data)
+  })
+
+  socket.on('authentication', (user, callback) => {
+    users.push(user)
+    socket.broadcast.emit('notification', `Novo Usuário Conectado: ${user.name}`)
+    callback(true)
+  })
+})
+
+httpServer.listen(port, () => console.log(`Server is Running on http://${host}:${port}`))
