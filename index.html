@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js" integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"
+        integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // let token = prompt('Digite o token');
+        // localStorage.token = token;
+    </script>
     <style>
         .chat-container {
             background-color: rgba(87, 86, 86, 0.315);
-            padding:10px;
-            width:100%;
-            min-height:50vh;
-            max-height:50vh;
+            padding: 10px;
+            width: 100%;
+            min-height: 50vh;
+            max-height: 50vh;
             overflow-y: auto;
         }
+
         .app {
-            display:flex;
+            display: flex;
             justify-content: center;
-            align-items:center;
+            align-items: center;
             min-height: 100vh;
-            min-width:100vw;
+            min-width: 100vw;
         }
     </style>
-    
+
     <script>
         function createNewMessage(msg) {
             let element = document.createElement('div');
@@ -31,9 +39,10 @@
             return element;
         }
     </script>
-  
+
 </head>
-<body >
+
+<body>
     <div class="app">
         <div style="width:60%">
             <div>Projeto básico de WB /Chat/ </div>
@@ -44,23 +53,69 @@
 
 </body>
 <script>
-    const socket = new WebSocket('ws://localhost:3000');
-    const chatContainer = document.querySelector('.chat-container');
+    let namespace = 'chat';
+    const manager = new io.Manager(`ws://localhost:3000`);
+    const chat = manager.socket(`/${namespace}`, {});
 
-    socket.onopen = (event) => {
-        document.querySelector('#socket-url').textContent = event.currentTarget.url;
-    }
+    chat.on('connect', () => {
+        console.log(`conectado ao namespace ${namespace}`);
+        let msg = `EU estou emitindo uma mensagem no namespace ${namespace}`;
+        chat.emit('new-message', msg, (save) => {
+            if (save) {
+                createNewMessage(msg)
+            }
+        })
 
-    socket.onerror = (err) => {
+        chat.on('read-message', (msg) => {
+            alerta(`Nova mensagem do namespace ${namespace} \n mensagem: ${msg}`)
+        })
+    });
+
+    chat.on('connect_error', (err) => {
+        console.log(`Erro ao conectar ao namespace ${namespace}`);
         console.error(err);
+    });
+
+    chat.on('disconect', () => {
+        console.log(`desconectado do namespace ${namespace}`);
+    });
+
+
+    function createNewMessage(msg) {
+        console.log(`criou nova mensagem: ${msg}`);
     }
 
-    socket.onclose = () => {
-        document.querySelector('#socket-url').textContent = 'Desconectado';
+    const socket = io('ws://localhost:3000', {
+        auth: {
+            token: localStorage.token
+        },
+    });
+
+    socket.on('connect', () => {
+        console.log('conectado ao Websocket');
+    });
+
+    socket.on("connect_error", err => {
+        console.log(err instanceof Error); // true
+        console.log(err.message); // not authorized
+    });
+
+    socket.on('disconnect', () => {
+        console.log('desconectado ao Websocket');
+    });
+
+    socket.on('user-connected', (user) => {
+        alerta(`O usuário ${user} foi conectado`);
+    })
+
+    socket.on('user-disconnected', (user) => {
+        alerta(`O usuário ${user} foi desconectdo`);
+    })
+
+    function alerta(msg) {
+        console.log(`Alerta: ${msg}`);
     }
-    
-    socket.onmessage = e => {
-        chatContainer.appendChild(createNewMessage(e.data));
-    }
+
 </script>
+
 </html>
