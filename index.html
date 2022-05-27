@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"
+        integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Chat</title>
     <style>
         .chat-container {
             background-color: rgba(87, 86, 86, 0.315);
-            padding:10px;
-            width:100%;
-            min-height:50vh;
-            max-height:50vh;
+            padding: 10px;
+            width: 100%;
+            min-height: 50vh;
+            max-height: 50vh;
             overflow-y: auto;
         }
+
         .app {
-            display:flex;
+            display: flex;
             justify-content: center;
-            align-items:center;
+            align-items: center;
             min-height: 100vh;
-            min-width:100vw;
+            min-width: 100vw;
+        }
+
+        .message {
+            background-color: rgba(60, 3, 141, 0.38);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: inline-block
         }
     </style>
-    
+
     <script>
         function createNewMessage(msg) {
             let element = document.createElement('div');
@@ -30,36 +43,53 @@
             return element;
         }
     </script>
-  
+
 </head>
-<body >
+
+<body>
     <div class="app">
         <div style="width:60%">
             <div>Projeto básico de WB /Chat/ </div>
             <div>Conectado à: <span id="socket-url"></span></div>
-            <div class="chat-container"></div>
+            <div class="chat-container">
+                <div class="message">
+                    <span>DWDWQIDIDWQ46DWQ</span>
+                    <span>Mensagem bolada aqui HDBJDWQBDBJWKBDHQ BDJH WQBDJHWQBD QBDWBJ BWDBDBWJBDWQ DHWBJ</span>
+                </div>
+                <div class="message">
+                    <span>DWDWQIDIDWQ46DWQ</span>
+                    <span>Mensagem bolada aqui</span>
+                </div>
+            </div>
         </div>
     </div>
 
 </body>
 <script>
-    const socket = new WebSocket('ws://localhost:3000');
-    const chatContainer = document.querySelector('.chat-container');
+    const socketUrlElement = document.querySelector('#socket-url');
+    const socket = io('ws://localhost:3000');
+    socket.on('connect', () => {
+        socketUrlElement.textContent = socket.io.uri;
 
-    socket.onopen = (event) => {
-        document.querySelector('#socket-url').textContent = event.currentTarget.url;
-    }
+        socket.send('Nova mensagem no channel: message');
+        socket.send('Nova mensagem no channe22: message');
+        socket.emit('channel 1', { name: 'Jonathas' }, (res) => {
+            console.log(res)
+        });
+    });
 
-    socket.onerror = (err) => {
-        console.error(err);
-    }
+    socket.on('disconnect', () => {
+        socketUrlElement.textContent = 'Desconectado'
+    })
+    //PEGA TUDO
+    socket.onAny((event) => {
+        console.log(`NORMAL - ${event}`);
+    });
 
-    socket.onclose = () => {
-        document.querySelector('#socket-url').textContent = 'Desconectado';
-    }
-    
-    socket.onmessage = e => {
-        chatContainer.appendChild(createNewMessage(e.data));
-    }
+    socket.onAnyOutgoing((event, ...args) => {
+        console.log(`SAINDO ${event}`);
+    });
+
 </script>
+
 </html>

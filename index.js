@@ -1,19 +1,32 @@
-const WebSocket = require("ws");
-const port = 3000;
+const { Server } = require("socket.io");
+const { createServer } = require("http");
+
 const host = "localhost";
+const port = 3000;
 
-const socket = new WebSocket.Server({ port, host });
-const clients = [];
+const httpServer = createServer({ host }, (req, res) => res.end("ok"));
 
-socket.on("connection", (client) => {
-  console.log("Foi conectado novo cliente");
-  clients.push(client);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500"],
+  },
 });
 
-setInterval(() => {
-  const msg = `Nova mensagem ${Math.random() * 100}`;
-
-  clients.forEach((client) => {
-    client.send(msg);
+io.on("connection", (socket) => {
+  socket.on("message", (data) => {
+    console.log(`Client message: ${data}`);
   });
-}, 1000);
+
+  socket.on("channel 1", (data, callback) => {
+    console.log(`channel 1: ${data}`);
+    callback("Tudo certo client!");
+  });
+
+  socket.emit("teste", "haha");
+  socket.emit("maluco", "haha");
+  socket.emit("beleza", "haha");
+});
+
+httpServer.listen(port, () =>
+  console.log(`Server is running on http://${host}:${port}`)
+);
