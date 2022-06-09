@@ -6,9 +6,11 @@ import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 
 loadFonts()
-
-createApp(App)
+const app = createApp(App)
+ app
   .use(router)
   .use(store)
   .use(vuetify)
   .mount('#app')
+
+export default app;
